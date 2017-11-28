@@ -18,8 +18,17 @@ const isDev = process.env.NODE_ENV !== 'production';
 // const tunnel = 'mysuperwebsite';
 const tunnel = false;
 
+console.log('__dirname:', __dirname);
+console.log('projectDir:', projectDir);
 console.log('NODE_ENV:', process.env.NODE_ENV);
-
+/*
+watchOptions: {
+      ignored: [
+        /node_modules([\\]+|\/)+(?!\some_npm_module_name)/, 
+        /\some_npm_module_name([\\]+|\/)node_modules/
+      ]
+    }
+*/
 const config = {
   context: projectDir + '/src',
   entry: {
@@ -124,5 +133,16 @@ const config = {
     })
   ]
 };
+// was getting errors - think UglifyJsPlugin does not like pre-transpiled ES6
+// Don't need this when I'm in dev mode, will figure it out later if needs be
+config.plugins = config.plugins.filter((plugin) => {
+  let keep = true;
+  if(isDev && plugin.constructor.name === 'UglifyJsPlugin')
+  {
+    console.log('Removing UglifyJsPlugin from plugins');
+    keep = false;
+  }
+  return keep;
+});
 
 module.exports = config;
